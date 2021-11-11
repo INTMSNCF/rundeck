@@ -152,8 +152,9 @@
               <g:hasErrors bean="${scheduledExecution}" field="description">
                   <i class="glyphicon glyphicon-warning-sign text-warning"></i>
               </g:hasErrors>
+
               <g:set var="allowHTML"
-                     value="${!(grailsApplication.config.rundeck?.gui?.job?.description?.disableHTML in [true, 'true'])}"/>
+                     value="${!(g.rConfig(value: "gui.job.description.disableHTML", type: 'string') in [true, 'true'])}"/>
               <div class="help-block">
                   <g:if test="${allowHTML}">
                       <g:render template="/scheduledExecution/description"
@@ -416,7 +417,7 @@
 
 
   <div style="${wdgt.styleVisible(if: scheduledExecution?.doNodedispatch)}" class="subfields nodeFilterFields ">
-  <g:if test="${grailsApplication.config.rundeck?.nodefilters?.showPrecedenceOption || scheduledExecution?.nodeExcludePrecedence!=null && !scheduledExecution?.nodeExcludePrecedence }">
+      <g:if test="${g.rConfig(value: "nodefilters.showPrecedenceOption", type: 'string') || scheduledExecution?.nodeExcludePrecedence!=null && !scheduledExecution?.nodeExcludePrecedence }">
 
       <div class="form-group ${hasErrors(bean: scheduledExecution, field: 'nodeInclude', 'has-error')}">
 

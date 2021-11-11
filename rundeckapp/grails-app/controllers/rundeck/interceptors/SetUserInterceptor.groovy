@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import rundeck.AuthToken
 import rundeck.User
 import rundeck.services.ApiService
+import rundeck.services.ConfigurationService
 import rundeck.services.UserService
 import webhooks.Webhook
 
@@ -28,6 +29,8 @@ class SetUserInterceptor {
     InterceptorHelper interceptorHelper
     UserService userService
     ApiService apiService
+    ConfigurationService configurationService
+
     def messageSource
     int order = HIGHEST_PRECEDENCE + 30
 
@@ -46,7 +49,9 @@ class SetUserInterceptor {
         if (request.pathInfo?.startsWith("/error")) {
             return true
         }
-        if (request.api_version && request.remoteUser && !(grailsApplication.config.rundeck?.security?.apiCookieAccess?.enabled in ['true',true])){
+        if (request.api_version &&
+            request.remoteUser &&
+            !(configurationService.getBoolean("security.apiCookieAccess.enabled",false))){
             //disallow api access via normal login
             request.invalidApiAuthentication=true
             return false
@@ -58,12 +63,14 @@ class SetUserInterceptor {
 
             request.subject = subject
             session.subject = subject
-        } else if(request.remoteUser && session.subject && grailsApplication.config.rundeck.security.authorization.preauthenticated.enabled in ['true',true]){
+        } else if(request.remoteUser && session.subject &&
+                configurationService.getBoolean("security.authorization.preauthenticated.enabled",false)){
             // Preauthenticated mode is enabled, handle upstream role changes
             Subject subject = createAuthSubject(request)
             request.subject = subject
             session.subject = subject
-        } else if(request.remoteUser && session.subject && grailsApplication.config.rundeck.security.authorization.preauthenticated.enabled in ['false',false]) {
+        } else if(request.remoteUser && session.subject &&
+                !configurationService.getBoolean("security.authorization.preauthenticated.enabled",false)) {
             request.subject = session.subject
         } else if (request.api_version && !session.user ) {
             //allow authentication token to be used
@@ -110,7 +117,7 @@ class SetUserInterceptor {
             render view: '/common/error.gsp'
             return false
         }
-        def requiredRole = grailsApplication.config.rundeck.security.requiredRole
+        def requiredRole = configurationService.getString("security.requiredRole","")
         if(!requiredRole.isEmpty()) {
             if(!request?.subject?.principals?.findAll { it instanceof Group }?.any { it.name == requiredRole }) {
                 log.error("User ${request.remoteUser} must have role: ${requiredRole} to log in.")

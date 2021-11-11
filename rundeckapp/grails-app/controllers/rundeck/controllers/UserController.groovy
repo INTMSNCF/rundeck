@@ -40,7 +40,6 @@ class UserController extends ControllerBase{
     UserService userService
     AppAuthContextProcessor rundeckAuthContextProcessor
     GrailsApplication grailsApplication
-    def configurationService
 
     static allowedMethods = [
             addFilterPref      : 'POST',
@@ -69,8 +68,10 @@ class UserController extends ControllerBase{
     }
 
     def loggedout(){
-        if(grailsApplication.config.rundeck.security.authorization.preauthenticated.redirectLogout in ['true',true]) {
-            return redirect(url: grailsApplication.config.grails.serverURL + grailsApplication.config.rundeck.security.authorization.preauthenticated.redirectUrl)
+        if(configurationService.getBoolean("security.authorization.preauthenticated.redirectLogout", false)) {
+            return redirect(url: grailsApplication.config.getProperty("grails.serverURL", String.class) +
+                                 configurationService.getString("security.authorization.preauthenticated.redirectUrl")
+            )
         }
     }
 
@@ -147,9 +148,8 @@ class UserController extends ControllerBase{
         }
 
         int max = (params.max && params.max.isInteger()) ? params.max.toInteger() :
-                grailsApplication.config.getProperty(
-                        "rundeck.gui.user.profile.paginatetoken.max.per.page",
-                        Integer.class,
+                configurationService.getInteger(
+                        "gui.user.profile.paginatetoken.max.per.page",
                         DEFAULT_TOKEN_PAGE_SIZE)
 
         int offset = (params.offset && params.offset.isInteger()) ? params.offset.toInteger() : 0
@@ -517,9 +517,8 @@ class UserController extends ControllerBase{
         }
         def offset = params.getInt('offset', 0)
 
-        int max = grailsApplication.config.getProperty(
-                "rundeck.gui.user.summary.max.per.page",
-                Integer.class,
+        int max = configurationService.getInteger(
+                "gui.user.summary.max.per.page",
                 DEFAULT_USER_PAGE_SIZE
         )
 
