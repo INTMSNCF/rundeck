@@ -569,7 +569,7 @@ class BootStrap {
     }
 
      def destroy = {
-         metricRegistry.removeMatching(MetricFilter.ALL)
+         metricRegistry?.removeMatching(MetricFilter.ALL)
          log.info("Rundeck Shutdown detected")
      }
 }
