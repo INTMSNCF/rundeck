@@ -133,7 +133,7 @@ each HTTP reqest, and provides some utility methods to Controllers and Services 
     def doWithSpring = {
         rundeckMetricsDisablingAdminServlet(DisablingAdminServlet)
         disablingAdminServletRegistrationBean(ServletRegistrationBean, ref('rundeckMetricsDisablingAdminServlet'), grailsApplication.config.rundeck.metrics.servletUrlPattern.toString()) {
-            loadOnStartup = -1
+            loadOnStartup = 2
         }
 
         metricRegistry(MetricRegistry)
