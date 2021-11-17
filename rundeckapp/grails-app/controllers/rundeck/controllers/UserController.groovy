@@ -40,6 +40,7 @@ class UserController extends ControllerBase{
     UserService userService
     AppAuthContextProcessor rundeckAuthContextProcessor
     GrailsApplication grailsApplication
+    ConfigurationService configurationService
 
     static allowedMethods = [
             addFilterPref      : 'POST',
